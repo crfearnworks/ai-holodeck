@@ -1,12 +1,9 @@
 """A Gradio client that can choose different LLMs for Q&A"""
 
 import gradio as gr
+import ollama
 from ollama import Client, pull as pullOllama
-
-# Pull the model
-pullOllama('mistral:7b')
-pullOllama('llava:7b')
-pullOllama('phi:2.7b')
+from loguru import logger
 
 # Set the tuple for all of the models
 modelTuple = [
@@ -16,6 +13,12 @@ modelTuple = [
 ]
 
 def llmChat(model,text):
+    try:
+        logger.info(f"Selected {model}")
+        ollama.show(model=model)
+    except ollama.ResponseError as e:
+        logger.info(f"Pulling {model}...")
+        pullOllama(model)
     
     client = Client(host='http://localhost:11434')
     response = client.chat(model=model, messages=[
@@ -38,4 +41,5 @@ llmChooser = gr.Interface(
 )
 
 if __name__ == '__main__':
+    logger.info("Starting Gradio...")
     llmChooser.launch(share=True)
