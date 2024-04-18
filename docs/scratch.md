@@ -6,7 +6,9 @@
 
 ## Next steps
 
-1) Get chatbot working on right side with settings on left side
 1) Get history saved and recall 
 1) Begin multimodal work for text docs
 1) Add example blocks
+1) get embed -> vector store
+1) run truths
+1) run ragas on truths and vector store
