@@ -7,7 +7,8 @@ from weaviate.util import generate_uuid5
 from typing import List
 import ollama
 
-FILE_PATH = "docs/Player_s Handbook.pdf"
+#FILE_PATH = "docs/Player_s Handbook.pdf"
+FILE_PATH = "docs/NIST.SP.800-171r2.pdf"
 
 def process_pdf(file_path: str):
     # partition the pdf
