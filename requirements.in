@@ -11,3 +11,5 @@ weaviate-client==4.5.5
 opencv-python-headless
 llama-index-embeddings-ollama
 llama-index
+pdf2image
+pytesseract
