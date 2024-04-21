@@ -1,3 +1,5 @@
 venv/
 flagged/
 docs/*.pdf
+.env
+logs/
