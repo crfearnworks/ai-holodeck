@@ -1,6 +1,6 @@
 venv/
 flagged/
-docs/*.pdf
+embed_docs/
 .env
 logs/
 __pycache__/
