@@ -1,6 +1,7 @@
 import holodeck.phb_rag.pdf as pdf
 import holodeck.phb_rag.ollama_utils as ollama_utils
 import holodeck.phb_rag.weaviate_utils as weaviate_utils
+import holodeck.gradio.chatbot as chatbot
 import holodeck.utilities.constants as constants
 import holodeck.utilities.custom_logging as custom_logging
 from pprint import pprint
@@ -17,18 +18,18 @@ def main():
     
     weaviateClient = weaviate_utils.create_weaviate_local_client()
     
-    collection = weaviate_utils.main(weaviateClient, "CMMC")
+    collection = weaviate_utils.main(weaviateClient, "PHB")
     
-    CMMCQuery = "What is the family for Access Control?"
+    PHBQuery = "Who is Pelor?"
     
     resultsContent = []
     results = collection.query.near_vector(
-        near_vector=embeddingModel.response_vectors(CMMCQuery),
+        near_vector=embeddingModel.response_vectors(PHBQuery),
     )
     for obj in results.objects:
         resultsContent.append(obj.properties['content'])
     
-    generativePrompt = f"Using this data: {resultsContent}, respond to this prompt: {CMMCQuery}"
+    generativePrompt = f"Using this data: {resultsContent}, respond to this prompt: {PHBQuery}"
     
     generativeOutput = generativeModel.generative_output(generativePrompt)
     
