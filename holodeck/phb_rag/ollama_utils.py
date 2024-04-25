@@ -1,8 +1,14 @@
 import ollama 
 from holodeck.utilities import constants
 from loguru import logger 
-from typing import List
+from typing import List, Dict
 class OllamaClient(ollama.Client):
+    def __init__(self, host = None, model = None):
+        if host is None:
+            host = constants.OLLAMA_LOCAL_URL
+        super().__init__(host=host)
+        self.model = model
+        
     def __del__(self):
         self._client.close()
 
@@ -31,6 +37,30 @@ def setup_generative_model(client: OllamaClient, model_name = None) -> OllamaCli
     logger.info(f"Pulling generative model {model_name}...")
     client.pull(model_name)
     return OllamaClient(model=model_name)
+
+def generate_embeddings(client: OllamaClient, elements: List) -> List[Dict]:
+    embeddings = []
+    clientModel = client.model
+    for element in elements:
+        response = client.embeddings(model=clientModel, prompt=element["text"])
+        embedding = response["embedding"]
+        embeddings.append(embedding)
+
+    chunk_embeddings_with_metadata = [
+        {
+            "id":  None,
+            "type": element['type'],
+            "title": element['metadata']['filename'],
+            "url": "None",
+            "content": element['text'],
+            "label": "No Label",
+            "tokens": len(element['text'].split()),
+            "embedding": embedding,
+        }
+        for element, embedding in zip(elements, embeddings)
+    ]
+    return chunk_embeddings_with_metadata
+
 
 def response_vectors(client: OllamaClient, query: str) -> List:
     response = client.embeddings(model=client.model, prompt=query)

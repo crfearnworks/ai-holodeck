@@ -2,14 +2,14 @@ import weaviate
 import weaviate.classes as wvc
 from weaviate.collections import Collection
 from weaviate.client import WeaviateClient
-from pdf import partition_pdf_elements_basic
+from .pdf import partition_pdf_elements_basic
 import holodeck.utilities.constants as constants 
 from typing import List, Dict
 from loguru import logger
 
-class WeaviateClient(weaviate):
-    def __del__(self):
-        self._client.close()
+#class WeaviateClient(weaviate):
+#    def __del__(self):
+#        self._client.close()
 
 def create_weaviate_local_client() -> WeaviateClient:
     client = weaviate.connect_to_local(
@@ -21,6 +21,7 @@ def create_weaviate_local_client() -> WeaviateClient:
 
 def create_collection(client: WeaviateClient, collection_name: str)-> Collection:
     with client: 
+        logger.info(f"Creating collection {collection_name}")
         client.collections.delete(collection_name)
         client.collections.create(
             name=collection_name,
@@ -32,8 +33,9 @@ def create_collection(client: WeaviateClient, collection_name: str)-> Collection
     collection = client.collections.get(name=collection_name)
     return collection
 
-def load_chunks_into_weaviate(chunks: List[Dict], client: WeaviateClient, collection_name: str):
-    collection = create_collection(client, collection_name)
+def load_chunks_into_weaviate(chunks: List[Dict], client: WeaviateClient, collection: Collection):
+
+    logger.info("Chunking data into Weaviate")
     chunk_objs = []
     for chunk in chunks:
         chunk_obj = wvc.data.DataObject(
@@ -53,7 +55,9 @@ def load_chunks_into_weaviate(chunks: List[Dict], client: WeaviateClient, collec
         
     logger.info(f"Loaded {len(chunks)} chunks into Weaviate")
     
-def get_collection(client: WeaviateClient, collection_name: str | constants.WEAVIATE_COLLECTION_NAME)-> Collection:
+def get_collection(client: WeaviateClient, collection_name = None)-> Collection:
+    if collection_name is None:
+        collection_name = constants.WEAVIATE_COLLECTION_NAME
     try:
         logger.info(f"Getting collection {collection_name}")
         collection = client.collections.get(collection_name)
@@ -63,34 +67,3 @@ def get_collection(client: WeaviateClient, collection_name: str | constants.WEAV
         collection = create_collection(client, collection_name)
     finally:
         return collection
-
-def main(client: WeaviateClient, name: str) -> Collection:
-    weaviateCollection = get_collection(client, name)
-    
-    elements = partition_pdf_elements_basic(constants.EMBEDDED_DOCS_DIR)
-    
-    elementDictionary = [element.to_dict() for element in elements]
-    
-    elementEmbeddings = []
-    for element in elementDictionary:
-        response = embeddingClient.embeddings(model=constants.DEFAULT_EMBEDDING_MODEL, prompt=element['text'])
-        embedding = response["embedding"]
-        elementEmbeddings.append(embedding)
-        
-    chunk_embeddings_with_metadata = [
-        {
-            "id":  None,
-            "type": element['type'],
-            "title": element['metadata']['filename'],
-            "url": "None",
-            "content": element['text'],
-            "label": "No Label",
-            "tokens": len(element['text'].split()),
-            "embedding": embedding,
-        }
-        for element, embedding in zip(elementDictionary, elementEmbeddings)
-    ]
-    
-    load_chunks_into_weaviate(chunk_embeddings_with_metadata, client, weaviateCollection.name)
-    logger.info("Pipeline complete")
-    return weaviateCollection
