@@ -1,3 +1,5 @@
+from itertools import count
+import os
 import weaviate
 import weaviate.classes as wvc
 from weaviate.collections import Collection
@@ -67,3 +69,35 @@ def get_collection(client: WeaviateClient, collection_name = None)-> Collection:
         collection = create_collection(client, collection_name)
     finally:
         return collection
+
+def check_embedded_existance(client: WeaviateClient, collection: Collection, file_path: str) -> List:
+    with client:
+        elements = []
+        for filename in os.listdir(file_path):
+            element = []
+            file = os.path.join(file_path, filename)
+            logger.info(f"Checking if {filename} exists in Weaviate")
+            dataObject = collection.query.fetch_objects(return_properties=["title"])
+            logger.info(f"Data object: {dataObject}")
+            if dataObject.objects is None:
+                logger.info(f"{filename} does not exist in Weaviate")
+                element = partition_pdf_elements_basic(file)
+                elements.append(element)
+                continue
+            else:
+                logger.info(f"{filename} exists in Weaviate")
+                continue
+                
+        return elements
+
+def generate_results_content(client: WeaviateClient, collection: Collection, query: str) -> List:
+    with client:
+        logger.info(f"Querying Weaviate collection with query: {query}")
+        resultsContent = []
+        resultsVectors = []
+        results = collection.query.near_vector(
+            near_vector=resultsVectors,
+        )
+        for obj in results.objects:
+            resultsContent.append(obj.properties['content'])
+        return resultsContent

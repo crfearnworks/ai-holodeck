@@ -28,29 +28,20 @@ def main():
     logger.info("Getting Weaviate collection...")
     weaviateCollection = weaviate_utils.get_collection(weaviateClient, constants.WEAVIATE_COLLECTION_NAME)
     
-    elements = pdf.partition_pdf_elements_basic(constants.EMBEDDED_DOCS_DIR)
+    elements = weaviate_utils.check_embedded_existance(weaviateClient, weaviateCollection, constants.EMBEDDED_DOCS_DIR)
+    if not elements:
+        logger.info("No new elements to add to Weaviate collection")
+    else:
+        logger.info("Elements found to add to Weaviate collection")
+        elementDictionary = [element.to_dict() for element in elements]
+        elementChunks = ollama_utils.generate_embeddings(embeddingModel, elementDictionary)
+        weaviate_utils.load_chunks_into_weaviate(elementChunks, weaviateClient, weaviateCollection)
     
-    elementDictionary = [element.to_dict() for element in elements]
+    resultsContent = weaviate_utils.generate_results_content(weaviateClient, weaviateCollection, constants.WEAVIATE_QUERY)
     
-    elementChunks = ollama_utils.generate_embeddings(embeddingModel, elementDictionary)
+    generativePrompt = f"Using this data: {resultsContent}, respond to this prompt: {constants.WEAVIATE_QUERY}"
     
-    weaviate_utils.load_chunks_into_weaviate(elementChunks, weaviateClient, weaviateCollection)
-    
-    logger.info("Querying Weaviate collection...")
-    weaviateQuery = constants.WEAVIATE_QUERY
-    resultsContent = []
-    
-    resultsVectors = ollama_utils.response_vectors(embeddingModel, weaviateQuery)
-    
-    results = weaviateCollection.query.near_vector(
-        near_vector=resultsVectors["embedding"],
-    )
-    for obj in results.objects:
-        resultsContent.append(obj.properties['content'])
-    
-    generativePrompt = f"Using this data: {resultsContent}, respond to this prompt: {weaviateQuery}"
-    
-    generativeOutput = generativeModel.generative_output(generativePrompt)
+    generativeOutput = ollama_utils.generative_output(generativeModel, generativePrompt)
     
     pprint(generativeOutput)
     
