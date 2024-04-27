@@ -4,7 +4,7 @@ import weaviate
 import weaviate.classes as wvc
 from weaviate.collections import Collection
 from weaviate.client import WeaviateClient
-from .pdf import partition_pdf_elements_basic
+from .pdf import partition_pdf_elements_basic, partition_pdf_elements_complex
 import holodeck.utilities.constants as constants 
 from typing import List, Dict
 from loguru import logger
@@ -24,7 +24,7 @@ def create_weaviate_local_client() -> WeaviateClient:
 def create_collection(client: WeaviateClient, collection_name: str)-> Collection:
     with client: 
         logger.info(f"Creating collection {collection_name}")
-        client.collections.delete(collection_name)
+
         client.collections.create(
             name=collection_name,
             vectorizer_config=wvc.config.Configure.Vectorizer.text2vec_transformers(),
@@ -34,6 +34,12 @@ def create_collection(client: WeaviateClient, collection_name: str)-> Collection
     )
     collection = client.collections.get(name=collection_name)
     return collection
+
+def delete_collection(client: WeaviateClient, collection_name: str) -> None:
+    with client:
+        logger.info(f"Deleting collection {collection_name}")
+        
+        client.collections.delete(name=collection_name)
 
 def load_chunks_into_weaviate(chunks: List[Dict], client: WeaviateClient, collection: Collection):
 
@@ -77,16 +83,15 @@ def check_embedded_existance(client: WeaviateClient, collection: Collection, fil
             element = []
             file = os.path.join(file_path, filename)
             logger.info(f"Checking if {filename} exists in Weaviate")
-            dataObject = collection.query.fetch_objects(return_properties=["title"])
-            logger.info(f"Data object: {dataObject}")
-            if dataObject.objects is None:
+            try:
+                dataObject = collection.query.fetch_objects(return_properties=["title"])
+                logger.info(f"Data object: {dataObject}")
+                logger.info(f"{filename} exists in Weaviate")
+            except weaviate.exceptions.WeaviateQueryError as e:
+                logger.error(f"Check failed: {e}")
                 logger.info(f"{filename} does not exist in Weaviate")
                 element = partition_pdf_elements_basic(file)
                 elements.append(element)
-                continue
-            else:
-                logger.info(f"{filename} exists in Weaviate")
-                continue
                 
         return elements
 

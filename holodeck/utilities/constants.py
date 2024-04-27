@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from loguru import logger
 from pathlib import Path
 
-load_dotenv()
+load_dotenv(dotenv_path=".env", verbose=True, override=True)
 
 # system paths
 LOGS_DIR=Path(os.getenv('LOGS_DIR'))
