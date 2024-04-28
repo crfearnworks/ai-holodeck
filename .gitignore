@@ -1,2 +1,6 @@
 venv/
 flagged/
+embed_docs/
+.env
+logs/
+__pycache__/

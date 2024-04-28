@@ -1,0 +1,22 @@
+[
+    {
+        "question": "Which ability score measures a character’s muscle and physical power?",
+        "ground_truth": "Strength."
+    },
+    {
+        "question": "What are the automatic languages of elves?",
+        "ground_truth": "Common and Elven."
+    },
+    {
+        "question": "What is a gnome’s base land speed?",
+        "ground_truth": "20 feet?"
+    },
+    {
+        "question": "Which character class has the rage ability?",
+        "ground_truth": "Barbarian"
+    },
+    {
+        "question": "What is the base attack bonus of a 4th level cleric?",
+        "ground_truth": "+3"
+    }
+]

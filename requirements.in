@@ -1,3 +1,17 @@
 gradio
 ollama
 loguru
+sentence-transformers
+torch
+torchvision
+torchaudio
+tqdm
+unstructured[local-inference]
+unstructured[pdf]
+weaviate-client==4.5.5
+opencv-python-headless
+llama-index-embeddings-ollama
+llama-index
+pdf2image
+pytesseract
+python-dotenv
