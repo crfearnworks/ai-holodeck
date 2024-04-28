@@ -91,7 +91,7 @@ def check_embedded_existance(client: WeaviateClient, collection: Collection, fil
                 logger.error(f"Check failed: {e}")
                 logger.info(f"{filename} does not exist in Weaviate")
                 element = partition_pdf_elements_basic(file)
-                elements.append(element)
+                elements.extend(element)
                 
         return elements
 

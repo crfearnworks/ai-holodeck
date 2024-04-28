@@ -1,5 +1,3 @@
-import gradio as gr
-import holodeck.rag.pipeline as pipeline
 import holodeck.rag.ollama_utils as ollama_utils
 import holodeck.rag.weaviate_utils as weaviate_utils
 import holodeck.utilities.constants as constants
@@ -9,7 +7,6 @@ from typing import List
 from loguru import logger
 from pprint import pprint
 from unstructured.staging.base import convert_to_dict
-from loguru import logger 
 
 def pipeline(input: str) -> List:
     
@@ -49,12 +46,9 @@ def pipeline(input: str) -> List:
         weaviate_utils.load_chunks_into_weaviate(elementChunks, weaviateClient, weaviateCollection)
         
     resultsContent = weaviate_utils.generate_results_content(weaviateClient, weaviateCollection, input)
-    logger.info(f"results: {resultsContent}")
+    
     generativePrompt = f"Using this data: {resultsContent}, respond to this prompt: {input}"
-    logger.info(f"prompt: {generativePrompt}")
+    
     response = ollama_utils.generative_output(generativeModel, generativePrompt)
-    logger.info(f"response: {response}")
-    return response
     
-chat = gr.Interface(fn = pipeline, inputs="text", outputs="text")
-    
+    return response["content"]
