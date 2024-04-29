@@ -84,8 +84,7 @@ def check_embedded_existance(client: WeaviateClient, collection: Collection, fil
             file = os.path.join(file_path, filename)
             logger.info(f"Checking if {filename} exists in Weaviate")
             try:
-                dataObject = collection.query.fetch_objects(return_properties=["title"])
-                logger.info(f"Data object: {dataObject}")
+                collection.query.fetch_objects(return_properties=["title"])
                 logger.info(f"{filename} exists in Weaviate")
             except weaviate.exceptions.WeaviateQueryError as e:
                 logger.error(f"Check failed: {e}")
@@ -99,10 +98,13 @@ def generate_results_content(client: WeaviateClient, collection: Collection, que
     with client:
         logger.info(f"Querying Weaviate collection with query: {query}")
         resultsContent = []
+        resultsReferences = []
         resultsVectors = []
         results = collection.query.near_vector(
             near_vector=resultsVectors,
         )
         for obj in results.objects:
             resultsContent.append(obj.properties['content'])
-        return resultsContent
+            resultsReferences.append(obj.properties['title'])
+        resultsReferences = list(dict.fromkeys(resultsReferences))
+        return resultsContent, resultsReferences
