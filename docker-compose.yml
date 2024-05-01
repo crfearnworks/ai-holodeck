@@ -1,0 +1,74 @@
+services:
+  ollama:
+    volumes:
+      - ollama:/root/.ollama
+    # Uncomment below to expose Ollama API outside the container stack
+    ports:
+      - 11434:11434
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+    image: ollama/ollama:latest
+    profiles: [model]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - dungeon
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+  weaviate:
+    command:
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8080'
+    - --scheme
+    - http
+    image: cr.weaviate.io/semitechnologies/weaviate:1.24.7
+    container_name: weaviate
+    ports:
+    - 8080:8080
+    - 50051:50051
+    profiles: [db]
+    volumes:
+    - weaviate_data:/var/lib/weaviate
+    restart: on-failure:0
+    environment:
+      TRANSFORMERS_INFERENCE_API: 'http://t2v-transformers:8080'
+      QUERY_DEFAULTS_LIMIT: 100
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-transformers'
+      ENABLE_MODULES: 'text2vec-transformers'
+      CLUSTER_HOSTNAME: 'node1'
+      AUTOSCHEMA_ENABLED: 'true'
+    networks:
+      - dungeon
+  t2v-transformers:
+    image: cr.weaviate.io/semitechnologies/transformers-inference:mixedbread-ai-mxbai-embed-large-v1
+    environment:
+      ENABLE_CUDA: '1'
+      NVIDIA_VISIBLE_DEVICES: 'all'
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - capabilities:
+            - 'gpu'
+    networks:
+      - dungeon
+    profiles: [db]
+volumes:
+  weaviate_data:
+  ollama:
+networks:
+  dungeon:
+    external: true

@@ -84,22 +84,32 @@ def check_embedded_existance(client: WeaviateClient, collection: Collection, fil
             file = os.path.join(file_path, filename)
             logger.info(f"Checking if {filename} exists in Weaviate")
             try:
-                collection.query.fetch_objects(return_properties=["title"])
-                logger.info(f"{filename} exists in Weaviate")
+                objectsResults = collection.query.fetch_objects(return_properties=["title"])
+                logger.info(f"Objects in Weaviate: {objectsResults}")
+                objects = [] 
+                for obj in objectsResults.objects:
+                    objects.append(obj.properties['title'])
+                logger.info(f"Objects in Weaviate: {objects}")
+                directory = list(dict.fromkeys(objects))
+                logger.info(f"Directory: {directory}")
+                if filename not in directory:
+                    logger.info(f"{filename} does not exist in Weaviate")
+                    element = partition_pdf_elements_basic(file)
+                    elements.extend(element)
+                else:    
+                    logger.info(f"{filename} exists in Weaviate")
             except weaviate.exceptions.WeaviateQueryError as e:
                 logger.error(f"Check failed: {e}")
-                logger.info(f"{filename} does not exist in Weaviate")
                 element = partition_pdf_elements_basic(file)
                 elements.extend(element)
                 
         return elements
 
-def generate_results_content(client: WeaviateClient, collection: Collection, query: str) -> List:
+def generate_results_content(client: WeaviateClient, collection: Collection, query: str, resultsVectors: List) -> List:
     with client:
         logger.info(f"Querying Weaviate collection with query: {query}")
         resultsContent = []
         resultsReferences = []
-        resultsVectors = []
         results = collection.query.near_vector(
             near_vector=resultsVectors,
         )
