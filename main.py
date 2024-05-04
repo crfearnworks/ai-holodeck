@@ -53,8 +53,8 @@ with gr.Blocks() as chat:
         weaviateClient = weaviate_utils.create_weaviate_local_client()
         
         # adding this to delete basic chunking
-        logger.info("Deleting Weaviate collection...")
-        weaviate_utils.delete_collection(weaviateClient, constants.WEAVIATE_COLLECTION_NAME)
+        #logger.info("Deleting Weaviate collection...")
+        #weaviate_utils.delete_collection(weaviateClient, constants.WEAVIATE_COLLECTION_NAME)
         
         logger.info("Getting Weaviate collection...")
         weaviateCollection = weaviate_utils.get_collection(weaviateClient, constants.WEAVIATE_COLLECTION_NAME)
@@ -75,7 +75,7 @@ with gr.Blocks() as chat:
         resultsContent, resultsReferences = weaviate_utils.generate_results_content(weaviateClient, weaviateCollection, input, resultsVectors)
         logger.info(f"results: {resultsContent}")
         logger.info(f"references: {resultsReferences}")
-        generativePrompt = f"Using this data: {resultsContent}, respond to this prompt: {input}"
+        generativePrompt = constants.GENERATIVE_PROMPT.format(input=input,resultsContent=resultsContent)
         logger.info(f"prompt: {generativePrompt}")
         response = ollama_utils.generative_output(generativeModel, generativePrompt)
         logger.info(f"response: {response}")

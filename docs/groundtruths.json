@@ -19,7 +19,9 @@
         "question": "What is the base attack bonus of a 4th level cleric?",
         "ground_truth": "+3"
     }
-    "question": "What are the domains of the god Vecna?",
+    ,
+    {
+        "question": "What are the domains of the god Vecna?",
         "ground_truth": "Evil, Knowledge, and Magic"
     }
     ,

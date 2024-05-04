@@ -27,15 +27,37 @@ def get_embeddings_client(host = None) -> OllamaClient:
 def setup_embedding_model(client: OllamaClient, model_name = None) -> OllamaClient:
     if model_name is None:
         model_name = constants.DEFAULT_EMBEDDING_MODEL
-    logger.info(f"Pulling embedding model {model_name}...")
-    client.pull(model_name)
+    model_list = client.list()
+    # Flag to track if the host is found
+    found = False
+    # Loop through each model and check if host is found
+    for model in model_list['models']:
+        if model['model'] == model_name:
+            found = True
+            break
+    if found:
+        logger.info(f"Embedding model {model_name} already exists on server...")
+    else:
+        logger.info(f"Pulling embedding model {model_name}...")
+        client.pull(model_name)
     return OllamaClient(model=model_name)
 
 def setup_generative_model(client: OllamaClient, model_name = None) -> OllamaClient:
     if model_name is None:
         model_name = constants.DEFAULT_GENERATOR_MODEL
-    logger.info(f"Pulling generative model {model_name}...")
-    client.pull(model_name)
+    model_list = client.list()
+    # Flag to track if the host is found
+    found = False
+    # Loop through each model and check if host is found
+    for model in model_list['models']:
+        if model['model'] == model_name:
+            found = True
+            break
+    if found:
+        logger.info(f"Generative model {model_name} already exists on server...")
+    else:
+        logger.info(f"Pulling generative model {model_name}...")
+        client.pull(model_name)
     return OllamaClient(model=model_name)
 
 def generate_embeddings(client: OllamaClient, elements: List) -> List[Dict]:
