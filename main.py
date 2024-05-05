@@ -3,6 +3,7 @@ import holodeck.rag.ollama_utils as ollama_utils
 import holodeck.rag.weaviate_utils as weaviate_utils
 import holodeck.utilities.constants as constants
 import holodeck.utilities.custom_logging as custom_logging
+import holodeck.rag.subdoc_chunking as subdoc_chunking
 from typing import List
 from loguru import logger
 from pprint import pprint

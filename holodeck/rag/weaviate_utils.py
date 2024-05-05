@@ -5,6 +5,7 @@ import weaviate.classes as wvc
 from weaviate.collections import Collection
 from weaviate.client import WeaviateClient
 from .pdf import partition_pdf_elements_basic, partition_pdf_elements_complex
+from .chunking import basic_overlap_chunking, by_title_chunking
 import holodeck.utilities.constants as constants 
 from typing import List, Dict
 from loguru import logger
@@ -81,6 +82,7 @@ def check_embedded_existance(client: WeaviateClient, collection: Collection, fil
         elements = []
         for filename in os.listdir(file_path):
             element = []
+            chunks = []
             file = os.path.join(file_path, filename)
             logger.info(f"Checking if {filename} exists in Weaviate")
             try:
@@ -95,13 +97,15 @@ def check_embedded_existance(client: WeaviateClient, collection: Collection, fil
                 if filename not in directory:
                     logger.info(f"{filename} does not exist in Weaviate")
                     element = partition_pdf_elements_basic(file)
-                    elements.extend(element)
+                    chunks = by_title_chunking(element)
+                    elements.extend(chunks)
                 else:    
                     logger.info(f"{filename} exists in Weaviate")
             except weaviate.exceptions.WeaviateQueryError as e:
                 logger.error(f"Check failed: {e}")
                 element = partition_pdf_elements_basic(file)
-                elements.extend(element)
+                chunks = by_title_chunking(element)
+                elements.extend(chunks)
                 
         return elements
 

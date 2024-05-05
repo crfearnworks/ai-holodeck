@@ -19,6 +19,8 @@ OLLAMA_LOCAL_URL=os.getenv('OLLAMA_LOCAL_URL')
 WEAVIATE_COLLECTION_NAME=os.getenv('WEAVIATE_COLLECTION_NAME')
 WEAVIATE_QUERY=os.getenv('WEAVIATE_QUERY')
 
+OPENAI_API_KEY=os.getenv('OPENAI_API_KEY')
+
 GENERATIVE_PROMPT="""You are Player's Companion, an assistant for players in the Dungeons & Dragons 3.5 ruleset.
 
 You have a deep knowledge on all classes, creatures, and lore in the D&D 3.5 campaign settings. 
