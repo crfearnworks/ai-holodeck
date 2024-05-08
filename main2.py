@@ -3,7 +3,8 @@ import holodeck.rag.ollama_utils as ollama_utils
 import holodeck.rag.weaviate_utils as weaviate_utils
 import holodeck.utilities.constants as constants
 import holodeck.utilities.custom_logging as custom_logging
-import holodeck.rag.subdoc_chunking as subdoc_chunking
+import holodeck.rag.pipeline as pipeline_prep
+#import holodeck.rag.subdoc_chunking as subdoc_chunking
 from typing import List
 from loguru import logger
 from pprint import pprint
@@ -59,6 +60,8 @@ with gr.Blocks() as chat:
         
         logger.info("Getting Weaviate collection...")
         weaviateCollection = weaviate_utils.get_collection(weaviateClient, constants.WEAVIATE_COLLECTION_NAME)
+        
+        
 
-
+chat.load(pipeline_prep.pipeline_prep())
 chat.launch(server_name="0.0.0.0", server_port=8000)

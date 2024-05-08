@@ -1,27 +1,11 @@
+from weaviate.collections import Collection
 import holodeck.rag.ollama_utils as ollama_utils
 import holodeck.rag.weaviate_utils as weaviate_utils
 import holodeck.utilities.constants as constants
-import holodeck.utilities.custom_logging as custom_logging
-import gradio as gr
-from typing import List
 from loguru import logger
-from pprint import pprint
 from unstructured.staging.base import convert_to_dict
 
-def pipeline(input: str) -> List:
-    
-    custom_logging.setup_logger()
-    logger.info("Starting RAG pipeline...")
-    
-    logger.info("Getting generative client...")
-    generativeClient = ollama_utils.get_generative_client(constants.OLLAMA_LOCAL_URL)
-    logger.info("Setting up generative model...")
-    generativeModel = ollama_utils.setup_generative_model(generativeClient)
-    
-    logger.info("Getting embeddings client...")
-    embeddingClient = ollama_utils.get_embeddings_client(constants.OLLAMA_LOCAL_URL)
-    logger.info("Setting up embedding model...")
-    embeddingModel = ollama_utils.setup_embedding_model(embeddingClient)
+def pipeline_prep() -> Collection
     
     logger.info("Creating Weaviate client...")
     weaviateClient = weaviate_utils.create_weaviate_local_client()
@@ -45,10 +29,4 @@ def pipeline(input: str) -> List:
         elementChunks = ollama_utils.generate_embeddings(embeddingModel, elementDictionary)
         weaviate_utils.load_chunks_into_weaviate(elementChunks, weaviateClient, weaviateCollection)
         
-    resultsContent = weaviate_utils.generate_results_content(weaviateClient, weaviateCollection, input)
-    
-    generativePrompt = f"Using this data: {resultsContent}, respond to this prompt: {input}"
-    
-    response = ollama_utils.generative_output(generativeModel, generativePrompt)
-    
-    return response["content"]
+    return weaviateCollection
