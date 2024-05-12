@@ -66,6 +66,17 @@ services:
     networks:
       - dungeon
     profiles: [db]
+  ingestor:
+    image: ghcr.io/nlmatics/nlm-ingestor:latest
+    container_name: ingestor
+    networks:
+      - dungeon
+    ports:
+      - 5010:5001
+    environment:
+      TIKA_SERVER_ENDPOINT: 'http://localhost:5001'
+    profiles: [ingestor]
+    restart: unless-stopped
 volumes:
   weaviate_data:
   ollama:

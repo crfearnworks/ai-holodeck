@@ -94,3 +94,28 @@ def generative_output(client: OllamaClient, query: str) -> List:
     logger.debug(f"Generative Response: {response}")
     return response["response"]
     
+# Assume ollama is already imported and configured
+def get_embedding(text):
+    response = ollama.embeddings(
+        model='mxbai-embed-large:v1',
+        prompt=text
+    )
+    return response["embedding"]
+
+def process_summary_items(data):
+    embeddings = []
+    for item in data:
+        # Extracting text from the 'chunk' which is the second element of the tuple
+        chunk_text = item['chunk'][1]
+        summary_text = item['summary']
+
+        # Generate embeddings
+        chunk_embedding = get_embedding(chunk_text)
+        summary_embedding = get_embedding(summary_text)
+
+        # Store embeddings in a tuple or a dictionary as needed
+        embeddings.append({
+            'chunk_embedding': chunk_embedding,
+            'summary_embedding': summary_embedding
+        })
+    return embeddings

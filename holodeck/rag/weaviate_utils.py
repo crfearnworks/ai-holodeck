@@ -6,6 +6,8 @@ from weaviate.collections import Collection
 from weaviate.client import WeaviateClient
 from .pdf import partition_pdf_elements_basic, partition_pdf_elements_complex
 from .chunking import basic_overlap_chunking, by_title_chunking
+from holodeck.chunking import summary_text
+from holodeck.rag import ollama_utils
 import holodeck.utilities.constants as constants 
 from typing import List, Dict
 from loguru import logger
@@ -42,7 +44,7 @@ def delete_collection(client: WeaviateClient, collection_name: str) -> None:
         
         client.collections.delete(name=collection_name)
 
-def load_chunks_into_weaviate(chunks: List[Dict], client: WeaviateClient, collection: Collection):
+def load_chunks_into_weaviate(chunks: List, client: WeaviateClient, collection: Collection):
 
     logger.info("Chunking data into Weaviate")
     chunk_objs = []
@@ -77,7 +79,7 @@ def get_collection(client: WeaviateClient, collection_name = None)-> Collection:
     finally:
         return collection
 
-def check_embedded_existance(client: WeaviateClient, collection: Collection, file_path: str) -> List:
+def check_embedded_existance(client: WeaviateClient, collection: Collection, file_path: str, o_client: ollama_utils.OllamaClient) -> List:
     with client:
         elements = []
         for filename in os.listdir(file_path):
@@ -98,14 +100,14 @@ def check_embedded_existance(client: WeaviateClient, collection: Collection, fil
                     logger.info(f"{filename} does not exist in Weaviate")
                     element = partition_pdf_elements_basic(file)
                     chunks = by_title_chunking(element)
-                    elements.extend(chunks)
+                    elements.extend(element)
                 else:    
                     logger.info(f"{filename} exists in Weaviate")
             except weaviate.exceptions.WeaviateQueryError as e:
                 logger.error(f"Check failed: {e}")
                 element = partition_pdf_elements_basic(file)
                 chunks = by_title_chunking(element)
-                elements.extend(chunks)
+                elements.extend(element)
                 
         return elements
 

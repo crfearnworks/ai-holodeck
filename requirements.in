@@ -16,3 +16,7 @@ llama-index-packs-subdoc-summary
 pdf2image
 pytesseract
 python-dotenv
+pypdf
+nltk
+spacy
+llmsherpa
