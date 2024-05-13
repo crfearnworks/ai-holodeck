@@ -19,4 +19,24 @@
         "question": "What is the base attack bonus of a 4th level cleric?",
         "ground_truth": "+3"
     }
+    ,
+    {
+        "question": "What are the domains of the god Vecna?",
+        "ground_truth": "Evil, Knowledge, and Magic"
+    }
+    ,
+    {
+        "question": "At what level does a paladin get Turn Undead",
+        "ground_truth": "+3"
+    }
+    ,
+    {
+        "question": "What is a familiar?",
+        "ground_truth": "A familiar is a magical beast that resembles a small animal and is unusually tough and intelligent. The creature serves as a companion and servant to sorcerers and wizards."
+    }
+    ,
+    {
+        "question": "If a fighter is 4th level and has a strength of 18, what is their attack bonus? Assume no other bonuses.",
+        "ground_truth": "+8"
+    }
 ]

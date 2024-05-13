@@ -1,5 +1,29 @@
----
 services:
+  ollama:
+    volumes:
+      - ollama:/root/.ollama
+    # Uncomment below to expose Ollama API outside the container stack
+    ports:
+      - 11434:11434
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+    image: ollama/ollama:latest
+    profiles: [model]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - dungeon
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
   weaviate:
     command:
     - --host
@@ -13,7 +37,7 @@ services:
     ports:
     - 8080:8080
     - 50051:50051
-    profiles: [model]
+    profiles: [db]
     volumes:
     - weaviate_data:/var/lib/weaviate
     restart: on-failure:0
@@ -27,7 +51,7 @@ services:
       CLUSTER_HOSTNAME: 'node1'
       AUTOSCHEMA_ENABLED: 'true'
     networks:
-      - aidriver
+      - dungeon
   t2v-transformers:
     image: cr.weaviate.io/semitechnologies/transformers-inference:mixedbread-ai-mxbai-embed-large-v1
     environment:
@@ -40,9 +64,22 @@ services:
           - capabilities:
             - 'gpu'
     networks:
-      - aidriver
-    profiles: [model]
+      - dungeon
+    profiles: [db]
+  ingestor:
+    image: ghcr.io/nlmatics/nlm-ingestor:latest
+    container_name: ingestor
+    networks:
+      - dungeon
+    ports:
+      - 5010:5001
+    environment:
+      TIKA_SERVER_ENDPOINT: 'http://localhost:5001'
+    profiles: [ingestor]
+    restart: unless-stopped
 volumes:
   weaviate_data:
+  ollama:
 networks:
-  aidriver:
+  dungeon:
+    external: true
