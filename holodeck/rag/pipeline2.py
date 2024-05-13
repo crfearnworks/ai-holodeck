@@ -1,6 +1,6 @@
 import os
 from weaviate.collections import Collection
-import holodeck.ollama.ollama_utils as ollama_utils
+import holodeck.ollama.class as class
 import holodeck.weaviate.weaviate_utils as weaviate_utils
 import holodeck.utilities.constants as constants
 from loguru import logger
@@ -9,9 +9,9 @@ from loguru import logger
 def pipeline_prep() -> None:
     
     logger.info("Getting embeddings client...")
-    embeddingClient = ollama_utils.get_embeddings_client(constants.OLLAMA_LOCAL_URL)
+    embeddingClient = class.get_embeddings_client(constants.OLLAMA_LOCAL_URL)
     logger.info("Setting up embedding model...")
-    embeddingModel = ollama_utils.setup_embedding_model(embeddingClient, constants.DEFAULT_EMBEDDING_MODEL)    
+    embeddingModel = class.setup_embedding_model(embeddingClient, constants.DEFAULT_EMBEDDING_MODEL)    
     
     logger.info("Creating Weaviate client...")
     weaviateClient = weaviate_utils.create_weaviate_local_client()

@@ -1,5 +1,6 @@
 import ollama 
 from holodeck.utilities import constants
+from holodeck.ollama.ollama_client import OllamaClient
 from loguru import logger 
 from typing import List, Dict
 

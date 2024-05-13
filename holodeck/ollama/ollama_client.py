@@ -1,7 +1,6 @@
 import ollama 
 from holodeck.utilities import constants
 from loguru import logger 
-from typing import List, Dict
 
 class OllamaClient(ollama.Client):
     host: str | None
@@ -11,12 +10,14 @@ class OllamaClient(ollama.Client):
         self.host = host
         self.model = model
         
-    def __del__(self):
+    def close(self):
+        """Close the client connection."""
         self._client.close()
 
     def get_client(self, host):
-        if host is None:
+        if self.host is None:
             self.host = constants.OLLAMA_LOCAL_URL
+            host = self.host
         logger.info(f"Getting client with host: {host}")
         return OllamaClient(host=host)
     
