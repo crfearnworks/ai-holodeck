@@ -3,7 +3,6 @@ from weaviate.collections import Collection
 import holodeck.rag.ollama_utils as ollama_utils
 import holodeck.rag.weaviate_utils as weaviate_utils
 import holodeck.utilities.constants as constants
-import holodeck.chunking.llmsherpa as llmsherpa_utils
 from loguru import logger
 
 
@@ -38,9 +37,7 @@ def pipeline_prep() -> None:
         logger.info(f"Directory: {directory}")
         if filename not in directory:
             logger.info(f"{filename} does not exist in Weaviate. Adding file...")
-            api_path = constants.LLMSHERPA_API_URL
-            document = llmsherpa_utils.read_pdf(file_path=file, llmsherpa_url=api_path)
-            document_chunks = document.chunks()
+
             
         else:
             logger.info(f"{filename} exists in Weaviate.")
