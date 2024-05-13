@@ -66,6 +66,6 @@ with gr.Blocks() as chat:
         logger.info(f"response: {response}")
         return response, resultsReferences
     
-    chat.load(pipeline_prep.pipeline_prep())
+    chat.load(pipeline_prep.pipeline_prep(delete_collection=False))
 
 chat.launch(server_name="0.0.0.0", server_port=8000)

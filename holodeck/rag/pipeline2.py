@@ -1,7 +1,7 @@
 import os
 from weaviate.collections import Collection
-import holodeck.rag.ollama_utils as ollama_utils
-import holodeck.rag.weaviate_utils as weaviate_utils
+import holodeck.ollama.ollama_utils as ollama_utils
+import holodeck.weaviate.weaviate_utils as weaviate_utils
 import holodeck.utilities.constants as constants
 from loguru import logger
 

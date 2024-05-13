@@ -6,7 +6,7 @@ import numpy as np
 import spacy
 from typing import List
 from loguru import logger
-from holodeck.rag import ollama_utils
+from holodeck.ollama import ollama_utils
 
 def extract_text_from_pdf(file_path) -> str:
     logger.info(f"Extracting text from {file_path}...")

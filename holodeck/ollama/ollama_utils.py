@@ -2,6 +2,7 @@ import ollama
 from holodeck.utilities import constants
 from loguru import logger 
 from typing import List, Dict
+
 class OllamaClient(ollama.Client):
     def __init__(self, host = None, model = None):
         if host is None:
