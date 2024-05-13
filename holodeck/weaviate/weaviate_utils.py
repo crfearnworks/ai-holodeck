@@ -4,10 +4,10 @@ import weaviate
 import weaviate.classes as wvc
 from weaviate.collections import Collection
 from weaviate.client import WeaviateClient
-from .pdf import partition_pdf_elements_basic, partition_pdf_elements_complex
-from .chunking import basic_overlap_chunking, by_title_chunking
+from ..chunking.pdf import partition_pdf_elements_basic, partition_pdf_elements_complex
+from ..chunking.unstructured import basic_overlap_chunking, by_title_chunking
 from holodeck.chunking import summary_text
-from holodeck.rag import ollama_utils
+from holodeck.ollama import ollama_utils
 import holodeck.utilities.constants as constants 
 from typing import List, Dict
 from loguru import logger

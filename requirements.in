@@ -10,9 +10,6 @@ unstructured[local-inference]
 unstructured[pdf]
 weaviate-client==4.5.5
 opencv-python-headless
-llama-index-embeddings-ollama
-llama-index
-llama-index-packs-subdoc-summary
 pdf2image
 pytesseract
 python-dotenv
