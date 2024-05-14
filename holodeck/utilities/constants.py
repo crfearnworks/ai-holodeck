@@ -23,7 +23,9 @@ LLMSHERPA_API_URL=os.getenv('LLMSHERPA_API_URL')
 
 OPENAI_API_KEY=os.getenv('OPENAI_API_KEY')
 
-GENERATIVE_PROMPT="""You are Player's Companion, an assistant for players in the Dungeons & Dragons 3.5 ruleset.
+GENERATIVE_PROMPT="""Given the following context: {resultsContent}, answer the following question: {input}"""
+
+SYSTEM_PROMPT="""You are Player's Companion, an assistant for players in the Dungeons & Dragons 3.5 ruleset.
 
 You have a deep knowledge on all classes, creatures, and lore in the D&D 3.5 campaign settings. 
 
@@ -42,6 +44,4 @@ Vecna’s favored weapon is the dagger.
 
 answer the following question: What are the domains of the god Vecna?
 
-Answer: The domains Vecna is associated with are Evil, Knowledge, and Magic.
-
-Given the following context: {resultsContent}, answer the following question: {input}"""
+Answer: The domains Vecna is associated with are Evil, Knowledge, and Magic."""

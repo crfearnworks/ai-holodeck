@@ -34,7 +34,7 @@ def response_vectors(client: OllamaClient, query: str) -> List:
     return response["embedding"]
 
 def generative_output(client: OllamaClient, query: str) -> List:
-    response = client.generate(model=client.model, prompt=query)
+    response = client.generate(model=client.model, prompt=query, system=constants.SYSTEM_PROMPT)
     logger.debug(f"Generative Response: {response}")
     return response["response"]
     
