@@ -4,17 +4,12 @@ import weaviate
 import weaviate.classes as wvc
 from weaviate.collections import Collection
 from weaviate.client import WeaviateClient
-from ..chunking.pdf import partition_pdf_elements_basic, partition_pdf_elements_complex
-from ..chunking.unstructured import basic_overlap_chunking, by_title_chunking
+from holodeck.chunking.unstructured import basic_overlap_chunking, by_title_chunking, partition_pdf_elements_basic
 from holodeck.chunking import summary_text
-from holodeck.ollama import class
+from holodeck.ollama.ollama_client import OllamaClient
 import holodeck.utilities.constants as constants 
 from typing import List, Dict
 from loguru import logger
-
-#class WeaviateClient(weaviate):
-#    def __del__(self):
-#        self._client.close()
 
 def create_weaviate_local_client() -> WeaviateClient:
     client = weaviate.connect_to_local(
@@ -79,7 +74,7 @@ def get_collection(client: WeaviateClient, collection_name = None)-> Collection:
     finally:
         return collection
 
-def check_embedded_existance(client: WeaviateClient, collection: Collection, file_path: str, o_client: class.OllamaClient) -> List:
+def check_embedded_existance(client: WeaviateClient, collection: Collection, file_path: str, o_client: OllamaClient) -> List:
     with client:
         elements = []
         for filename in os.listdir(file_path):
