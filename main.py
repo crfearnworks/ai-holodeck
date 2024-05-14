@@ -1,9 +1,10 @@
 import gradio as gr
-import holodeck.ollama.class as class
+from holodeck.ollama.ollama_client import OllamaClient
 import holodeck.weaviate.weaviate_utils as weaviate_utils
 import holodeck.utilities.constants as constants
 import holodeck.utilities.custom_logging as custom_logging
 import holodeck.rag.pipeline as pipeline_prep
+import holodeck.ollama.embeddings as embeddings
 #import holodeck.rag.subdoc_chunking as subdoc_chunking
 from typing import List
 from loguru import logger
@@ -32,23 +33,25 @@ with gr.Blocks() as chat:
         with gr.Column(scale=1):
             reference = gr.Textbox(label="Reference", placeholder="Reference Documents")
         with gr.Column(scale=2):
-            output = gr.Textbox(label="Output", placeholder="Output will appear here")
+            context = gr.Textbox(label="Context", placeholder="Chunks referenced will appear here")
+    with gr.Row():
+        output = gr.Textbox(label="Output", placeholder="Output will appear here")
             
-    @input_btn.click(inputs=[generativeDropdown, input], outputs=[output, reference])
+    @input_btn.click(inputs=[generativeDropdown, input], outputs=[output, reference, context])
     def pipeline(generativeDropdown: tuple, input: str) -> List:
     
         custom_logging.setup_logger()
         logger.info("Starting RAG pipeline...")
         
         logger.info("Getting generative client...")
-        generativeClient = class.get_generative_client(constants.OLLAMA_LOCAL_URL)
+        generativeClient = OllamaClient.get_client(constants.OLLAMA_LOCAL_URL)
         logger.info("Setting up generative model...")
-        generativeModel = class.setup_generative_model(generativeClient, generativeDropdown)
+        generativeModel = OllamaClient.setup_model(generativeClient, generativeDropdown)
         
         logger.info("Getting embeddings client...")
-        embeddingClient = class.get_embeddings_client(constants.OLLAMA_LOCAL_URL)
+        embeddingClient = OllamaClient.get_client(constants.OLLAMA_LOCAL_URL)
         logger.info("Setting up embedding model...")
-        embeddingModel = class.setup_embedding_model(embeddingClient, constants.DEFAULT_EMBEDDING_MODEL)  
+        embeddingModel = OllamaClient.setup_model(embeddingClient, constants.DEFAULT_EMBEDDING_MODEL)  
         
         logger.info("Creating Weaviate client...")
         weaviateClient = weaviate_utils.create_weaviate_local_client()
@@ -56,15 +59,15 @@ with gr.Blocks() as chat:
         logger.info("Getting Weaviate collection...")
         weaviateCollection = weaviate_utils.get_collection(weaviateClient, constants.WEAVIATE_COLLECTION_NAME)
         
-        resultsVectors = class.response_vectors(embeddingModel, input)
+        resultsVectors = embeddings.response_vectors(embeddingModel, input)
         resultsContent, resultsReferences = weaviate_utils.generate_results_content(weaviateClient, weaviateCollection, input, resultsVectors)
         logger.info(f"results: {resultsContent}")
         logger.info(f"references: {resultsReferences}")
         generativePrompt = constants.GENERATIVE_PROMPT.format(input=input,resultsContent=resultsContent)
         logger.info(f"prompt: {generativePrompt}")
-        response = class.generative_output(generativeModel, generativePrompt)
+        response = embeddings.generative_output(generativeModel, generativePrompt)
         logger.info(f"response: {response}")
-        return response, resultsReferences
+        return response, resultsReferences, resultsContent
     
     chat.load(pipeline_prep.pipeline_prep(delete_collection=False))
 

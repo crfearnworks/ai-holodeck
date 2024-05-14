@@ -3,23 +3,23 @@ from holodeck.utilities import constants
 from loguru import logger 
 
 class OllamaClient(ollama.Client):
-    host: str | None
-    model: str | None
-    
     def __init__(self, host = None, model = None):
+        super().__init__()
         self.host = host
         self.model = model
+        logger.debug(f"Initialized OllamaClient with host: {self.host} and model: {self.model}")
         
     def close(self):
         """Close the client connection."""
         self._client.close()
 
-    def get_client(self, host):
-        if self.host is None:
-            self.host = constants.OLLAMA_LOCAL_URL
-            host = self.host
+    @classmethod
+    def get_client(cls, host=None):
+        if host is None:
+            logger.debug("Host is None, setting to default.")
+            host = constants.OLLAMA_LOCAL_URL
         logger.info(f"Getting client with host: {host}")
-        return OllamaClient(host=host)
+        return cls(host=host)
     
     def setup_model(self, model):
         model_list = self.list()

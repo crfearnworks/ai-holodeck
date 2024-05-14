@@ -30,5 +30,5 @@ def pipeline_prep(delete_collection: bool) -> None:
     else:
         logger.info("Elements found to add to Weaviate collection")
         elementDictionary = convert_to_dict(elements=elements)
-        elementChunks = OllamaClient.generate_embeddings(embeddingModel, elementDictionary)
+        elementChunks = embeddings.generate_embeddings(embeddingModel, elementDictionary)
         weaviate_utils.load_chunks_into_weaviate(elementChunks, weaviateClient, weaviateCollection)
