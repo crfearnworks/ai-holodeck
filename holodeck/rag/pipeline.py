@@ -1,6 +1,6 @@
 from weaviate.collections import Collection
 import holodeck.ollama.embeddings as embeddings
-import holodeck.ollama.ollama_client as ollama_client
+from holodeck.ollama.ollama_client import OllamaClient
 import holodeck.weaviate.weaviate_utils as weaviate_utils
 import holodeck.utilities.constants as constants
 from loguru import logger
@@ -9,9 +9,9 @@ from unstructured.staging.base import convert_to_dict
 def pipeline_prep(delete_collection: bool) -> None:
     
     logger.info("Getting embeddings client...")
-    embeddingClient = ollama_client.OllamaClient.get_client(host=constants.OLLAMA_LOCAL_URL)
+    embeddingClient = OllamaClient.get_client(host=constants.OLLAMA_LOCAL_URL)
     logger.info("Setting up embedding model...")
-    embeddingModel = ollama_client.OllamaClient.setup_model(embeddingClient, model=constants.DEFAULT_EMBEDDING_MODEL)    
+    embeddingModel = OllamaClient.setup_model(embeddingClient, model=constants.DEFAULT_EMBEDDING_MODEL)    
     
     logger.info("Creating Weaviate client...")
     weaviateClient = weaviate_utils.create_weaviate_local_client()
@@ -30,5 +30,5 @@ def pipeline_prep(delete_collection: bool) -> None:
     else:
         logger.info("Elements found to add to Weaviate collection")
         elementDictionary = convert_to_dict(elements=elements)
-        elementChunks = class.generate_embeddings(embeddingModel, elementDictionary)
+        elementChunks = OllamaClient.generate_embeddings(embeddingModel, elementDictionary)
         weaviate_utils.load_chunks_into_weaviate(elementChunks, weaviateClient, weaviateCollection)

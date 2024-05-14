@@ -6,7 +6,7 @@ import numpy as np
 import spacy
 from typing import List
 from loguru import logger
-from holodeck.ollama import class
+from holodeck.ollama.ollama_client import OllamaClient
 
 def extract_text_from_pdf(file_path) -> str:
     logger.info(f"Extracting text from {file_path}...")
@@ -81,7 +81,7 @@ def spacy_chunk_text(text) -> List:
     
     return final_texts
 
-def spacy_chunk_and_summarize(chunks, o_client: class.OllamaClient) -> List:
+def spacy_chunk_and_summarize(chunks, o_client: OllamaClient) -> List:
     logger.info("Summarizing chunks")
     task = "Summarize this in one to three sentences."
     summaries_and_chunks = []
