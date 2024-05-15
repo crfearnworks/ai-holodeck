@@ -5,11 +5,8 @@ import holodeck.utilities.constants as constants
 import holodeck.utilities.custom_logging as custom_logging
 import holodeck.rag.pipeline as pipeline_prep
 import holodeck.ollama.embeddings as embeddings
-#import holodeck.rag.subdoc_chunking as subdoc_chunking
 from typing import List
 from loguru import logger
-from pprint import pprint
-from unstructured.staging.base import convert_to_dict
 
 # Set the tuple for all of the models
 generativeTuple = [
@@ -69,6 +66,6 @@ with gr.Blocks() as chat:
         logger.info(f"response: {response}")
         return response, resultsReferences, resultsContent
     
-    chat.load(pipeline_prep.pipeline_prep(delete_collection=True))
+    chat.load(pipeline_prep.pipeline_prep(delete_collection=False))
 
 chat.launch(server_name="0.0.0.0", server_port=8000)
