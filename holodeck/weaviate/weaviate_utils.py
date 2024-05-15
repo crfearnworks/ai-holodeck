@@ -10,6 +10,7 @@ from holodeck.ollama.ollama_client import OllamaClient
 import holodeck.utilities.constants as constants 
 from typing import List, Dict
 from loguru import logger
+from tqdm import tqdm
 
 def create_weaviate_local_client() -> WeaviateClient:
     client = weaviate.connect_to_local(
@@ -43,7 +44,7 @@ def load_chunks_into_weaviate(chunks: List, client: WeaviateClient, collection: 
 
     logger.info("Chunking data into Weaviate")
     chunk_objs = []
-    for chunk in chunks:
+    for chunk in tqdm(chunks, desc="Loading data", unit="chunk"):
         chunk_obj = wvc.data.DataObject(
             properties={
                 "content": chunk['content'],

@@ -3,11 +3,12 @@ from holodeck.utilities import constants
 from holodeck.ollama.ollama_client import OllamaClient
 from loguru import logger 
 from typing import List, Dict
+from tqdm import tqdm
 
 def generate_embeddings(client: OllamaClient, elements: List) -> List[Dict]:
     embeddings = []
     clientModel = client.model
-    for element in elements:
+    for element in tqdm(elements, desc="Generating embeddings", unit="element"):
         response = client.embeddings(model=clientModel, prompt=element["text"])
         embedding = response["embedding"]
         embeddings.append(embedding)
