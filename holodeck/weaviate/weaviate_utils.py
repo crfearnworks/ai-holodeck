@@ -4,17 +4,13 @@ import weaviate
 import weaviate.classes as wvc
 from weaviate.collections import Collection
 from weaviate.client import WeaviateClient
-from .pdf import partition_pdf_elements_basic, partition_pdf_elements_complex
-from .chunking import basic_overlap_chunking, by_title_chunking
+from holodeck.chunking.unstructured import basic_overlap_chunking, by_title_chunking, partition_pdf_elements_basic, remove_new_line_hyphens
 from holodeck.chunking import summary_text
-from holodeck.rag import ollama_utils
+from holodeck.ollama.ollama_client import OllamaClient
 import holodeck.utilities.constants as constants 
 from typing import List, Dict
 from loguru import logger
-
-#class WeaviateClient(weaviate):
-#    def __del__(self):
-#        self._client.close()
+from tqdm import tqdm
 
 def create_weaviate_local_client() -> WeaviateClient:
     client = weaviate.connect_to_local(
@@ -48,7 +44,7 @@ def load_chunks_into_weaviate(chunks: List, client: WeaviateClient, collection: 
 
     logger.info("Chunking data into Weaviate")
     chunk_objs = []
-    for chunk in chunks:
+    for chunk in tqdm(chunks, desc="Loading data", unit="chunk"):
         chunk_obj = wvc.data.DataObject(
             properties={
                 "content": chunk['content'],
@@ -79,7 +75,7 @@ def get_collection(client: WeaviateClient, collection_name = None)-> Collection:
     finally:
         return collection
 
-def check_embedded_existance(client: WeaviateClient, collection: Collection, file_path: str, o_client: ollama_utils.OllamaClient) -> List:
+def check_embedded_existance(client: WeaviateClient, collection: Collection, file_path: str, o_client: OllamaClient) -> List:
     with client:
         elements = []
         for filename in os.listdir(file_path):
@@ -99,14 +95,12 @@ def check_embedded_existance(client: WeaviateClient, collection: Collection, fil
                 if filename not in directory:
                     logger.info(f"{filename} does not exist in Weaviate")
                     element = partition_pdf_elements_basic(file)
-                    chunks = by_title_chunking(element)
                     elements.extend(element)
                 else:    
                     logger.info(f"{filename} exists in Weaviate")
             except weaviate.exceptions.WeaviateQueryError as e:
                 logger.error(f"Check failed: {e}")
                 element = partition_pdf_elements_basic(file)
-                chunks = by_title_chunking(element)
                 elements.extend(element)
                 
         return elements

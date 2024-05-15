@@ -12,6 +12,4 @@ OLLAMA_LOCAL_URL="0.0.0.0:11434"
 WEAVIATE_COLLECTION_NAME="Chunk"
 WEAVIATE_QUERY=
 
-LLMSHERPA_API_URL="https://readers.llmsherpa.com/api/document/developer/parseDocument?renderFormat=all"
-
 OPENAI_API_KEY=
