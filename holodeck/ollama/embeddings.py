@@ -4,8 +4,10 @@ from holodeck.ollama.ollama_client import OllamaClient
 from loguru import logger 
 from typing import List, Dict
 from tqdm import tqdm
+from time import time
 
 def generate_embeddings(client: OllamaClient, elements: List) -> List[Dict]:
+    start = time()
     embeddings = []
     clientModel = client.model
     for element in tqdm(elements, desc="Generating embeddings", unit="element"):
@@ -26,6 +28,8 @@ def generate_embeddings(client: OllamaClient, elements: List) -> List[Dict]:
         }
         for element, embedding in zip(elements, embeddings)
     ]
+    end = time()
+    logger.debug(f"Embedding generation took {end-start} seconds")
     return chunk_embeddings_with_metadata
 
 
@@ -35,8 +39,14 @@ def response_vectors(client: OllamaClient, query: str) -> List:
     return response["embedding"]
 
 def generative_output(client: OllamaClient, query: str) -> List:
+    start = time()
+    logger.debug(f"Query: {query}")
+    logger.debug(f"Model: {client.model}")
+    logger.debug(f"System Prompt: {constants.SYSTEM_PROMPT}")
     response = client.generate(model=client.model, prompt=query, system=constants.SYSTEM_PROMPT)
     logger.debug(f"Generative Response: {response}")
+    end = time()
+    logger.debug(f"Generative output took {end-start} seconds")
     return response["response"]
     
 # Assume ollama is already imported and configured

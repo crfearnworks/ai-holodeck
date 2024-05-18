@@ -11,6 +11,7 @@ import holodeck.utilities.constants as constants
 from typing import List, Dict
 from loguru import logger
 from tqdm import tqdm
+from time import time
 
 def create_weaviate_local_client() -> WeaviateClient:
     client = weaviate.connect_to_local(
@@ -106,15 +107,21 @@ def check_embedded_existance(client: WeaviateClient, collection: Collection, fil
         return elements
 
 def generate_results_content(client: WeaviateClient, collection: Collection, query: str, resultsVectors: List) -> List:
+    start = time()
     with client:
+        logger.info(f"resultsVectors: {resultsVectors}")
         logger.info(f"Querying Weaviate collection with query: {query}")
         resultsContent = []
         resultsReferences = []
         results = collection.query.near_vector(
             near_vector=resultsVectors,
+            limit=10,
+            return_metadata=wvc.query.MetadataQuery(distance=True,certainty=True, score=True)
         )
-        for obj in results.objects:
+        for obj in tqdm(results.objects, desc="Processing results", unit="obj"):
             resultsContent.append(obj.properties['content'])
             resultsReferences.append(obj.properties['title'])
         resultsReferences = list(dict.fromkeys(resultsReferences))
+        end = time()
+        logger.debug(f"Time taken to generate results: {end-start}")
         return resultsContent, resultsReferences

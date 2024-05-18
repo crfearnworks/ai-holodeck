@@ -1,6 +1,7 @@
 import ollama 
 from holodeck.utilities import constants
 from loguru import logger 
+from tqdm import tqdm
 
 class OllamaClient(ollama.Client):
     def __init__(self, host = None, model = None):

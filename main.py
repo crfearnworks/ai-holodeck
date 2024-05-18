@@ -5,14 +5,21 @@ import holodeck.utilities.constants as constants
 import holodeck.utilities.custom_logging as custom_logging
 import holodeck.rag.pipeline as pipeline_prep
 import holodeck.ollama.embeddings as embeddings
+from IPython.display import display, HTML
 from typing import List
 from loguru import logger
 
 # Set the tuple for all of the models
 generativeTuple = [
-    ["Mistral","mistral:7b"],
-    ["LLaVA","llava:7b"],
-    ["Phi-2","phi:2.7b"]
+    ["mistral:7b-instruct-v0.2-q8_0","mistral:7b-instruct-v0.2-q8_0"],
+    ["llava:7b-v1.6-mistral-q8_0","llava:7b-v1.6-mistral-q8_0"],
+    ["llama3:8b-instruct-q8_0","llama3:8b-instruct-q8_0"],
+    ["phi3:3.8b-mini-instruct-4k-q4_K_M","phi3:3.8b-mini-instruct-4k-q4_K_M"],
+    ["phi3:3.8b-mini-instruct-4k-fp16","phi3:3.8b-mini-instruct-4k-fp16"],
+    ["llava-phi3:3.8b","llava-phi3:3.8b"],
+    ["llava-llama3:8b-v1.1-q4_0","llava-llama3:8b-v1.1-q4_0"],
+    ["llava-llama3:8b-v1.1-fp16","llava-llama3:8b-v1.1-fp16"],
+    ["command-r:35b-v0.1-q4_0","command-r:35b-v0.1-q4_0"]
 ]
 
 embeddingTuple = [
@@ -66,6 +73,6 @@ with gr.Blocks() as chat:
         logger.info(f"response: {response}")
         return response, resultsReferences, resultsContent
     
-    chat.load(pipeline_prep.pipeline_prep(delete_collection=True))
+    chat.load(pipeline_prep.pipeline_prep(delete_collection=False))
 
 chat.launch(server_name="0.0.0.0", server_port=8000)
